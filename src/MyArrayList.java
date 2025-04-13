@@ -1,52 +1,47 @@
 public class MyArrayList<T> implements MyList<T> {
-    private Object[] data;
-    private int size;
+    private Object[] a;
+    private int n;
 
     public MyArrayList() {
-        data = new Object[10];
-        size = 0;
+        a = new Object[10];
+        n = 0;
     }
 
     private void grow() {
-        Object[] newData = new Object[data.length * 2];
-        for (int i = 0; i < size; i++) {
-            newData[i] = data[i];
-        }
-        data = newData;
+        Object[] temp = new Object[a.length * 2];
+        for (int i = 0; i < n; i++) temp[i] = a[i];
+        a = temp;
     }
 
     public void add(T item) {
-        if (size == data.length) grow();
-        data[size++] = item;
-    }
-
-    public void set(int index, T item) {
-        if (index >= 0 && index < size) {
-            data[index] = item;
+        if (n == a.length) {
+            grow();
         }
+        a[n] = item;
+        n++;
     }
 
-    public void add(int index, T item) {
-        if (index < 0 || index > size) return;
-        if (size == data.length) grow();
-        for (int i = size; i > index; i--) {
-            data[i] = data[i - 1];
+    public void add(int idx, T item) {
+        if (idx < 0 || idx > n) return;
+        if (n >= a.length) grow();
+        for (int i = n; i > idx; i--) {
+            a[i] = a[i - 1];
         }
-        data[index] = item;
-        size++;
+        a[idx] = item;
+        n++;
     }
 
-    public void addFirst(T item) {
-        add(0, item);
+    public void addFirst(T t) {
+        add(0, t);
     }
 
-    public void addLast(T item) {
-        add(item);
+    public void addLast(T t) {
+        add(t);
     }
 
-    public T get(int index) {
-        if (index >= 0 && index < size) return (T) data[index];
-        return null;
+    public T get(int i) {
+        if (i < 0 || i >= n) return null;
+        return (T) a[i];
     }
 
     public T getFirst() {
@@ -54,16 +49,22 @@ public class MyArrayList<T> implements MyList<T> {
     }
 
     public T getLast() {
-        return get(size - 1);
+        return get(n - 1);
     }
 
-    public void remove(int index) {
-        if (index >= 0 && index < size) {
-            for (int i = index; i < size - 1; i++) {
-                data[i] = data[i + 1];
-            }
-            data[--size] = null;
+    public void set(int i, T t) {
+        if (i >= 0 && i < n) {
+            a[i] = t;
         }
+    }
+
+    public void remove(int i) {
+        if (i < 0 || i >= n) return;
+        for (int j = i; j < n - 1; j++) {
+            a[j] = a[j + 1];
+        }
+        a[n - 1] = null;
+        n--;
     }
 
     public void removeFirst() {
@@ -71,68 +72,66 @@ public class MyArrayList<T> implements MyList<T> {
     }
 
     public void removeLast() {
-        remove(size - 1);
+        remove(n - 1);
+    }
+
+    public void clear() {
+        for (int i = 0; i < n; i++) {
+            a[i] = null;
+        }
+        n = 0;
+    }
+
+    public boolean exists(Object o) {
+        return indexOf(o) != -1;
+    }
+
+    public int indexOf(Object o) {
+        for (int i = 0; i < n; i++) {
+            if (a[i].equals(o)) return i;
+        }
+        return -1;
+    }
+
+    public int lastIndexOf(Object o) {
+        for (int i = n - 1; i >= 0; i--) {
+            if (a[i].equals(o)) return i;
+        }
+        return -1;
+    }
+
+    public Object[] toArray() {
+        Object[] arr = new Object[n];
+        for (int i = 0; i < n; i++) arr[i] = a[i];
+        return arr;
     }
 
     public void sort() {
-        for (int i = 0; i < size - 1; i++) {
-            for (int j = 0; j < size - i - 1; j++) {
-                Comparable<T> a = (Comparable<T>) data[j];
-                T b = (T) data[j + 1];
-                if (a.compareTo(b) > 0) {
-                    Object tmp = data[j];
-                    data[j] = data[j + 1];
-                    data[j + 1] = tmp;
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                Comparable<T> x = (Comparable<T>) a[j];
+                T y = (T) a[j + 1];
+                if (x.compareTo(y) > 0) {
+                    Object tmp = a[j];
+                    a[j] = a[j + 1];
+                    a[j + 1] = tmp;
                 }
             }
         }
     }
 
-    public int indexOf(Object object) {
-        for (int i = 0; i < size; i++) {
-            if (data[i].equals(object)) return i;
-        }
-        return -1;
-    }
-
-    public int lastIndexOf(Object object) {
-        for (int i = size - 1; i >= 0; i--) {
-            if (data[i].equals(object)) return i;
-        }
-        return -1;
-    }
-
-    public boolean exists(Object object) {
-        return indexOf(object) != -1;
-    }
-
-    public Object[] toArray() {
-        Object[] result = new Object[size];
-        for (int i = 0; i < size; i++) {
-            result[i] = data[i];
-        }
-        return result;
-    }
-
-    public void clear() {
-        for (int i = 0; i < size; i++) {
-            data[i] = null;
-        }
-        size = 0;
-    }
-
     public int size() {
-        return size;
+        return n;
     }
 
     public java.util.Iterator<T> iterator() {
         return new java.util.Iterator<T>() {
-            int i = 0;
+            int k = 0;
             public boolean hasNext() {
-                return i < size;
+                return k < n;
             }
             public T next() {
-                return (T) data[i++];
+                return (T) a[k++];
             }
         };
     }
